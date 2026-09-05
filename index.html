@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Receipt Generator</title>
+  <title>CSC Receipt Generator</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
@@ -15,35 +15,63 @@
     input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 14px; }
     
     .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; font-size: 15px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
-    .btn-blue { background: #2563eb; }
+    .btn-blue { background: #1e3a8a; }
     .btn-green { background: #16a34a; }
 
-    /* Receipt Template */
-    .receipt-wrapper { display: none; width: 100%; max-width: 600px; background: #fff; padding: 25px; border: 1px solid #ddd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .receipt-header { background: #1e3a8a; color: #fff; text-align: center; padding: 10px; font-size: 18px; font-weight: bold; margin-bottom: 25px; border-radius: 4px; }
+    /* Receipt Layout with CSC Background Watermark */
+    .receipt-wrapper { display: none; width: 100%; max-width: 600px; background: #fff; padding: 30px; border: 1px solid #ddd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
     
-    .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+    /* Background Watermark */
+    .receipt-wrapper::before {
+      content: "CSC SERVICE";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-30deg);
+      font-size: 60px;
+      font-weight: bold;
+      color: rgba(30, 58, 138, 0.08);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .csc-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 20px; }
+    .csc-logo { font-size: 24px; font-weight: bold; color: #1e3a8a; letter-spacing: 1px; }
+    .csc-sub { font-size: 12px; color: #64748b; }
+
+    .receipt-title { background: #1e3a8a; color: #fff; text-align: center; padding: 8px; font-size: 16px; font-weight: bold; margin-bottom: 20px; border-radius: 4px; }
+    
+    .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; position: relative; z-index: 1; }
     .receipt-table td { padding: 8px 0; font-size: 15px; }
     .label-col { font-weight: bold; width: 45%; color: #1e293b; }
     .colon-col { width: 5%; }
     .val-col { width: 50%; color: #0f172a; font-family: 'Courier New', Courier, monospace; font-weight: bold; }
 
-    .note-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 5px; font-size: 12px; color: #475569; line-height: 1.6; }
+    .note-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 5px; font-size: 12px; color: #475569; line-height: 1.6; position: relative; z-index: 1; }
     .note-box ul { padding-left: 18px; }
 
-    .receipt-footer { text-align: center; margin-top: 30px; font-size: 13px; color: #64748b; border-top: 1px dashed #cbd5e1; padding-top: 15px; }
+    .receipt-footer { text-align: center; margin-top: 30px; font-size: 13px; color: #64748b; border-top: 1px dashed #cbd5e1; padding-top: 15px; position: relative; z-index: 1; }
   </style>
 </head>
 <body>
 
 <div class="form-box">
-  <h3 style="margin-bottom: 15px; color: #1e3a8a;">जनरेट पेमेन्ट रसीद</h3>
+  <h3 style="margin-bottom: 15px; color: #1e3a8a;">CSC सेवा केंद्र - पेमेन्ट रसीद</h3>
   <div class="form-group">
-    <label>ग्राहक का नाम (Customer Name)</label>
-    <input type="text" id="custName" placeholder="नाम लिखें">
+    <label>CSC ID</label>
+    <input type="text" id="cscIdInput" value="123456780012">
   </div>
   <div class="form-group">
-    <label>राशि (Amount ₹)</label>
+    <label>ग्राहक का नाम (Customer Name)</label>
+    <input type="text" id="custName" placeholder="ग्राहक का नाम लिखें">
+  </div>
+  <div class="form-group">
+    <label>सेवा का नाम (Service Name)</label>
+    <input type="text" id="serviceName" placeholder="e.g. Certificate / Form Fee">
+  </div>
+  <div class="form-group">
+    <label>शुल्क राशि (Amount ₹)</label>
     <input type="number" id="payAmount" value="50">
   </div>
   <button class="btn btn-blue" onclick="generateReceipt()">रसीद बनाएं</button>
@@ -51,7 +79,19 @@
 
 <!-- Receipt Layout -->
 <div id="receiptArea" class="receipt-wrapper">
-  <div class="receipt-header">Payment Receipt</div>
+  
+  <div class="csc-header">
+    <div>
+      <div class="csc-logo">CSC DIGITAL SEVA</div>
+      <div class="csc-sub">Common Service Centre Network</div>
+    </div>
+    <div style="text-align: right;">
+      <div style="font-weight: bold; font-size: 14px; color: #1e3a8a;">CSC ID: <span id="outCscId">123456780012</span></div>
+      <div class="csc-sub">Authorized Service Receipt</div>
+    </div>
+  </div>
+
+  <div class="receipt-title">Payment Acknowledgment Receipt</div>
   
   <table class="receipt-table">
     <tr>
@@ -60,27 +100,32 @@
       <td class="val-col" id="outCustName" style="font-family: inherit;">-</td>
     </tr>
     <tr>
+      <td class="label-col">Service Provided</td>
+      <td class="colon-col">:</td>
+      <td class="val-col" id="outService" style="font-family: inherit;">-</td>
+    </tr>
+    <tr>
       <td class="label-col">Receipt Number</td>
       <td class="colon-col">:</td>
       <td class="val-col" id="outReceiptNum">-</td>
     </tr>
     <tr>
-      <td class="label-col">Receipt Date</td>
+      <td class="label-col">Receipt Date & Time</td>
       <td class="colon-col">:</td>
       <td class="val-col" id="outDate">-</td>
     </tr>
     <tr>
-      <td class="label-col">SRN</td>
+      <td class="label-col">SRN Number</td>
       <td class="colon-col">:</td>
       <td class="val-col" id="outSRN">-</td>
     </tr>
     <tr>
-      <td class="label-col">Payment Transaction ID</td>
+      <td class="label-col">Transaction ID</td>
       <td class="colon-col">:</td>
       <td class="val-col" id="outTxnId">-</td>
     </tr>
     <tr>
-      <td class="label-col">Amount Paid</td>
+      <td class="label-col">Service Amount</td>
       <td class="colon-col">:</td>
       <td class="val-col">₹ <span id="outAmount">0.00</span></td>
     </tr>
@@ -92,16 +137,16 @@
   </table>
 
   <div class="note-box">
-    <strong>Note:</strong>
+    <strong>CSC Center Note:</strong>
     <ul>
-      <li>Your payment has been successfully processed.</li>
-      <li>This is a system generated confirmation receipt for your records.</li>
-      <li>In case of any queries, please quote your SRN number.</li>
+      <li>Payment has been processed through CSC Digital Seva portal.</li>
+      <li>Please preserve this receipt and SRN number for future service references.</li>
+      <li>This is a computer-generated receipt issued by CSC Center Operator.</li>
     </ul>
   </div>
 
   <div class="receipt-footer">
-    Electronically Generated, does not require Signature.
+    Electronically Generated by CSC Digital Seva, does not require physical signature.
   </div>
 </div>
 
@@ -109,24 +154,28 @@
 
 <script>
   function generateReceipt() {
+    const cscId = document.getElementById('cscIdInput').value.trim();
     const name = document.getElementById('custName').value.trim();
+    const service = document.getElementById('serviceName').value.trim();
     const amount = document.getElementById('payAmount').value;
 
-    if(!name) {
-      alert('कृपया ग्राहक का नाम दर्ज करें!');
+    if(!name || !service) {
+      alert('कृपया ग्राहक का नाम और सेवा का नाम दोनों भरें!');
       return;
     }
 
-    // Auto-generate Auto Numbers & Date
+    // Live Date and Auto-Generated SRN
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString();
     
     const randomReceipt = Math.floor(1000000 + Math.random() * 9000000);
-    const randomSRN = 'S' + Math.floor(100000000000 + Math.random() * 900000000000);
+    const randomSRN = 'CSC' + Math.floor(10000000000 + Math.random() * 90000000000);
     const randomTxn = 'TXN' + Math.random().toString(36).substring(2, 12).toUpperCase();
 
-    // Fill Receipt
+    // Data Mapping
+    document.getElementById('outCscId').innerText = cscId || '123456780012';
     document.getElementById('outCustName').innerText = name;
+    document.getElementById('outService').innerText = service;
     document.getElementById('outAmount').innerText = parseFloat(amount).toFixed(2);
     document.getElementById('outDate').innerText = dateStr;
     document.getElementById('outReceiptNum').innerText = randomReceipt;
@@ -141,7 +190,7 @@
     const element = document.getElementById('receiptArea');
     const options = {
       margin:       10,
-      filename:     `Receipt_${Date.now()}.pdf`,
+      filename:     `CSC_Receipt_${Date.now()}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2 },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
