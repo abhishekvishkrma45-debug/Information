@@ -3,138 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Birth Certificate Generator</title>
-  <!-- HTML2PDF Library -->
+  <title>Payment Receipt Generator</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    * { box-sizing: border-box; font-family: 'Georgia', serif; margin: 0; padding: 0; }
-    body { background-color: #0f172a; color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
-    
-    .form-container { background: #1e293b; color: #fff; width: 100%; max-width: 600px; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 30px; font-family: sans-serif; }
-    .form-container h2 { text-align: center; margin-bottom: 20px; color: #38bdf8; font-size: 22px; }
+    * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    body { background-color: #f1f5f9; color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+
+    .form-box { background: #fff; padding: 20px; border-radius: 8px; width: 100%; max-width: 500px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
     .form-group { margin-bottom: 12px; }
-    label { display: block; margin-bottom: 5px; font-size: 14px; color: #94a3b8; }
-    input { width: 100%; padding: 10px; border: 1px solid #334155; background: #0f172a; color: #fff; border-radius: 6px; font-size: 14px; outline: none; }
-    .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; background: #2563eb; color: white; margin-top: 10px; }
-    .btn-green { background: #16a34a; margin-top: 15px; }
-
-    /* Certificate Layout Design */
-    .certificate-wrapper { display: none; width: 100%; max-width: 800px; background: #fff; padding: 15px; }
-    .certificate-border { border: 10px solid #1e3a8a; outline: 3px double #1e3a8a; outline-offset: -8px; padding: 40px; background: #fdfcf7; text-align: center; position: relative; }
-    .cert-title { font-size: 38px; color: #1e3a8a; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; font-weight: bold; border-bottom: 2px solid #1e3a8a; display: inline-block; padding-bottom: 5px; }
-    .cert-subtitle { font-size: 16px; color: #555; margin-bottom: 30px; font-style: italic; }
+    label { display: block; font-size: 14px; margin-bottom: 5px; color: #475569; }
+    input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 14px; }
     
-    .cert-body { text-align: left; margin-top: 20px; line-height: 2; font-size: 16px; }
-    .cert-row { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px dashed #999; padding-bottom: 5px; }
-    .cert-label { font-weight: bold; color: #1e3a8a; }
-    .cert-value { color: #111; font-weight: bold; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; font-size: 15px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
+    .btn-blue { background: #2563eb; }
+    .btn-green { background: #16a34a; }
 
-    .cert-footer { margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-end; }
-    .signature-box { text-align: center; border-top: 1px solid #333; width: 180px; padding-top: 5px; font-size: 14px; }
-    .gold-seal { width: 80px; height: 80px; background: radial-gradient(circle, #facc15, #ca8a04); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; font-size: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); text-transform: uppercase; border: 2px dashed #fff; }
+    /* Receipt Template */
+    .receipt-wrapper { display: none; width: 100%; max-width: 600px; background: #fff; padding: 25px; border: 1px solid #ddd; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .receipt-header { background: #1e3a8a; color: #fff; text-align: center; padding: 10px; font-size: 18px; font-weight: bold; margin-bottom: 25px; border-radius: 4px; }
+    
+    .receipt-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+    .receipt-table td { padding: 8px 0; font-size: 15px; }
+    .label-col { font-weight: bold; width: 45%; color: #1e293b; }
+    .colon-col { width: 5%; }
+    .val-col { width: 50%; color: #0f172a; font-family: 'Courier New', Courier, monospace; font-weight: bold; }
+
+    .note-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 5px; font-size: 12px; color: #475569; line-height: 1.6; }
+    .note-box ul { padding-left: 18px; }
+
+    .receipt-footer { text-align: center; margin-top: 30px; font-size: 13px; color: #64748b; border-top: 1px dashed #cbd5e1; padding-top: 15px; }
   </style>
 </head>
 <body>
 
-<!-- Form Section -->
-<div class="form-container">
-  <h2>Birth Certificate Form</h2>
+<div class="form-box">
+  <h3 style="margin-bottom: 15px; color: #1e3a8a;">जनरेट पेमेन्ट रसीद</h3>
   <div class="form-group">
-    <label>Child's Full Name (बच्चे का पूरा नाम)</label>
-    <input type="text" id="childName" placeholder="e.g. Rahul Sharma">
+    <label>ग्राहक का नाम (Customer Name)</label>
+    <input type="text" id="custName" placeholder="नाम लिखें">
   </div>
   <div class="form-group">
-    <label>Date of Birth (जन्मतिथि)</label>
-    <input type="date" id="dob">
+    <label>राशि (Amount ₹)</label>
+    <input type="number" id="payAmount" value="50">
   </div>
-  <div class="form-group">
-    <label>Father's Name (पिता का नाम)</label>
-    <input type="text" id="fatherName" placeholder="e.g. Suresh Sharma">
-  </div>
-  <div class="form-group">
-    <label>Mother's Name (माता का नाम)</label>
-    <input type="text" id="motherName" placeholder="e.g. Anita Sharma">
-  </div>
-  <div class="form-group">
-    <label>Place of Birth (जन्म स्थान)</label>
-    <input type="text" id="placeName" placeholder="e.g. New Delhi">
-  </div>
+  <button class="btn btn-blue" onclick="generateReceipt()">रसीद बनाएं</button>
+</div>
+
+<!-- Receipt Layout -->
+<div id="receiptArea" class="receipt-wrapper">
+  <div class="receipt-header">Payment Receipt</div>
   
-  <button class="btn" onclick="generateCertificate()">Generate Certificate</button>
-</div>
+  <table class="receipt-table">
+    <tr>
+      <td class="label-col">Customer Name</td>
+      <td class="colon-col">:</td>
+      <td class="val-col" id="outCustName" style="font-family: inherit;">-</td>
+    </tr>
+    <tr>
+      <td class="label-col">Receipt Number</td>
+      <td class="colon-col">:</td>
+      <td class="val-col" id="outReceiptNum">-</td>
+    </tr>
+    <tr>
+      <td class="label-col">Receipt Date</td>
+      <td class="colon-col">:</td>
+      <td class="val-col" id="outDate">-</td>
+    </tr>
+    <tr>
+      <td class="label-col">SRN</td>
+      <td class="colon-col">:</td>
+      <td class="val-col" id="outSRN">-</td>
+    </tr>
+    <tr>
+      <td class="label-col">Payment Transaction ID</td>
+      <td class="colon-col">:</td>
+      <td class="val-col" id="outTxnId">-</td>
+    </tr>
+    <tr>
+      <td class="label-col">Amount Paid</td>
+      <td class="colon-col">:</td>
+      <td class="val-col">₹ <span id="outAmount">0.00</span></td>
+    </tr>
+    <tr>
+      <td class="label-col">Transaction Status</td>
+      <td class="colon-col">:</td>
+      <td class="val-col" style="color: #16a34a;">Completed</td>
+    </tr>
+  </table>
 
-<!-- Printable Certificate Layout -->
-<div id="certificateTarget" class="certificate-wrapper">
-  <div class="certificate-border">
-    <div class="cert-title">Birth Certificate</div>
-    <div class="cert-subtitle">Official Record of Birth</div>
+  <div class="note-box">
+    <strong>Note:</strong>
+    <ul>
+      <li>Your payment has been successfully processed.</li>
+      <li>This is a system generated confirmation receipt for your records.</li>
+      <li>In case of any queries, please quote your SRN number.</li>
+    </ul>
+  </div>
 
-    <div class="cert-body">
-      <div class="cert-row">
-        <span class="cert-label">Child's Name:</span>
-        <span class="cert-value" id="outChildName">-</span>
-      </div>
-      <div class="cert-row">
-        <span class="cert-label">Date of Birth:</span>
-        <span class="cert-value" id="outDob">-</span>
-      </div>
-      <div class="cert-row">
-        <span class="cert-label">Father's Name:</span>
-        <span class="cert-value" id="outFatherName">-</span>
-      </div>
-      <div class="cert-row">
-        <span class="cert-label">Mother's Name:</span>
-        <span class="cert-value" id="outMotherName">-</span>
-      </div>
-      <div class="cert-row">
-        <span class="cert-label">Place of Birth:</span>
-        <span class="cert-value" id="outPlaceName">-</span>
-      </div>
-    </div>
-
-    <div class="cert-footer">
-      <div class="signature-box">Registrar Signature</div>
-      <div class="gold-seal">OFFICIAL<br>SEAL</div>
-      <div class="signature-box">Date of Issue</div>
-    </div>
+  <div class="receipt-footer">
+    Electronically Generated, does not require Signature.
   </div>
 </div>
 
-<button id="pdfBtn" class="btn btn-green" style="display:none; max-width:600px;" onclick="downloadPDF()">📄 Download PDF Certificate</button>
+<button id="pdfBtn" class="btn btn-green" style="display:none; max-width: 600px; margin-top: 15px;" onclick="downloadPDF()">📄 Download PDF Receipt</button>
 
 <script>
-  function generateCertificate() {
-    const child = document.getElementById('childName').value.trim();
-    const dob = document.getElementById('dob').value;
-    const father = document.getElementById('fatherName').value.trim();
-    const mother = document.getElementById('motherName').value.trim();
-    const place = document.getElementById('placeName').value.trim();
+  function generateReceipt() {
+    const name = document.getElementById('custName').value.trim();
+    const amount = document.getElementById('payAmount').value;
 
-    if(!child || !dob || !father || !mother || !place) {
-      alert('कृपया सभी जानकारी भरें!');
+    if(!name) {
+      alert('कृपया ग्राहक का नाम दर्ज करें!');
       return;
     }
 
-    document.getElementById('outChildName').innerText = child;
-    document.getElementById('outDob').innerText = dob;
-    document.getElementById('outFatherName').innerText = father;
-    document.getElementById('outMotherName').innerText = mother;
-    document.getElementById('outPlaceName').innerText = place;
+    // Auto-generate Auto Numbers & Date
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString();
+    
+    const randomReceipt = Math.floor(1000000 + Math.random() * 9000000);
+    const randomSRN = 'S' + Math.floor(100000000000 + Math.random() * 900000000000);
+    const randomTxn = 'TXN' + Math.random().toString(36).substring(2, 12).toUpperCase();
 
-    document.getElementById('certificateTarget').style.display = 'block';
+    // Fill Receipt
+    document.getElementById('outCustName').innerText = name;
+    document.getElementById('outAmount').innerText = parseFloat(amount).toFixed(2);
+    document.getElementById('outDate').innerText = dateStr;
+    document.getElementById('outReceiptNum').innerText = randomReceipt;
+    document.getElementById('outSRN').innerText = randomSRN;
+    document.getElementById('outTxnId').innerText = randomTxn;
+
+    document.getElementById('receiptArea').style.display = 'block';
     document.getElementById('pdfBtn').style.display = 'block';
   }
 
   function downloadPDF() {
-    const element = document.getElementById('certificateTarget');
-    const childName = document.getElementById('outChildName').innerText;
-    
+    const element = document.getElementById('receiptArea');
     const options = {
-      margin:       5,
-      filename:     `Birth_Certificate_${childName}.pdf`,
+      margin:       10,
+      filename:     `Receipt_${Date.now()}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(options).from(element).save();
