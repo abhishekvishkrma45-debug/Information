@@ -3,128 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visiting Card to PDF Generator</title>
-  <!-- HTML2PDF Library Include -->
+  <title>Birth Certificate Generator</title>
+  <!-- HTML2PDF Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-    body { background-color: #0f172a; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .container { background: #1e293b; width: 100%; max-width: 420px; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    h2 { text-align: center; margin-bottom: 20px; color: #38bdf8; font-size: 22px; }
+    * { box-sizing: border-box; font-family: 'Georgia', serif; margin: 0; padding: 0; }
+    body { background-color: #0f172a; color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
     
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 6px; font-size: 14px; color: #94a3b8; }
-    input { width: 100%; padding: 12px; border: 1px solid #334155; background: #0f172a; color: #fff; border-radius: 8px; font-size: 15px; outline: none; }
-    input:focus { border-color: #38bdf8; }
-    
-    .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; background: #2563eb; color: white; margin-top: 10px; transition: 0.3s; }
-    .btn:hover { background: #1d4ed8; }
+    .form-container { background: #1e293b; color: #fff; width: 100%; max-width: 600px; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 30px; font-family: sans-serif; }
+    .form-container h2 { text-align: center; margin-bottom: 20px; color: #38bdf8; font-size: 22px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 5px; font-size: 14px; color: #94a3b8; }
+    input { width: 100%; padding: 10px; border: 1px solid #334155; background: #0f172a; color: #fff; border-radius: 6px; font-size: 14px; outline: none; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; background: #2563eb; color: white; margin-top: 10px; }
     .btn-green { background: #16a34a; margin-top: 15px; }
-    .btn-green:hover { background: #15803d; }
-    .btn-danger { background: #dc2626; margin-top: 10px; }
-    .btn-danger:hover { background: #b91c1c; }
 
-    /* Visiting Card Style */
-    .card-preview { display: none; margin-top: 25px; background: linear-gradient(135deg, #1e3c72, #2a5298); padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
-    .card-preview::after { content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; }
-    .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-    .card-avatar { width: 50px; height: 50px; background: #ff7043; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: #fff; }
-    .card-info h3 { font-size: 18px; color: #fff; text-transform: capitalize; }
-    .card-info p { font-size: 13px; color: #cbd5e1; }
-    .card-body { border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; }
-    .card-detail { font-size: 14px; margin-top: 6px; display: flex; align-items: center; gap: 8px; }
+    /* Certificate Layout Design */
+    .certificate-wrapper { display: none; width: 100%; max-width: 800px; background: #fff; padding: 15px; }
+    .certificate-border { border: 10px solid #1e3a8a; outline: 3px double #1e3a8a; outline-offset: -8px; padding: 40px; background: #fdfcf7; text-align: center; position: relative; }
+    .cert-title { font-size: 38px; color: #1e3a8a; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; font-weight: bold; border-bottom: 2px solid #1e3a8a; display: inline-block; padding-bottom: 5px; }
+    .cert-subtitle { font-size: 16px; color: #555; margin-bottom: 30px; font-style: italic; }
+    
+    .cert-body { text-align: left; margin-top: 20px; line-height: 2; font-size: 16px; }
+    .cert-row { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px dashed #999; padding-bottom: 5px; }
+    .cert-label { font-weight: bold; color: #1e3a8a; }
+    .cert-value { color: #111; font-weight: bold; }
+
+    .cert-footer { margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .signature-box { text-align: center; border-top: 1px solid #333; width: 180px; padding-top: 5px; font-size: 14px; }
+    .gold-seal { width: 80px; height: 80px; background: radial-gradient(circle, #facc15, #ca8a04); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; font-size: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); text-transform: uppercase; border: 2px dashed #fff; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>Visiting Card to PDF</h2>
-  
+<!-- Form Section -->
+<div class="form-container">
+  <h2>Birth Certificate Form</h2>
   <div class="form-group">
-    <label>आपका नाम (Full Name)</label>
-    <input type="text" id="fullName" placeholder="अपना नाम दर्ज करें">
+    <label>Child's Full Name (बच्चे का पूरा नाम)</label>
+    <input type="text" id="childName" placeholder="e.g. Rahul Sharma">
   </div>
-  
   <div class="form-group">
-    <label>फोन नंबर (Phone Number)</label>
-    <input type="tel" id="phoneNumber" placeholder="फ़ोन नंबर दर्ज करें">
+    <label>Date of Birth (जन्मतिथि)</label>
+    <input type="date" id="dob">
+  </div>
+  <div class="form-group">
+    <label>Father's Name (पिता का नाम)</label>
+    <input type="text" id="fatherName" placeholder="e.g. Suresh Sharma">
+  </div>
+  <div class="form-group">
+    <label>Mother's Name (माता का नाम)</label>
+    <input type="text" id="motherName" placeholder="e.g. Anita Sharma">
+  </div>
+  <div class="form-group">
+    <label>Place of Birth (जन्म स्थान)</label>
+    <input type="text" id="placeName" placeholder="e.g. New Delhi">
   </div>
   
-  <button class="btn" onclick="generateCard()">कार्ड बनाएं & सेव करें</button>
-
-  <!-- Generated Visiting Card Target for PDF -->
-  <div id="visitingCard" class="card-preview">
-    <div class="card-header">
-      <div class="card-avatar" id="cardAvatar">U</div>
-      <div class="card-info">
-        <h3 id="cardName">User Name</h3>
-        <p>Verified Member</p>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="card-detail">📞 <span id="cardPhone">+91 0000000000</span></div>
-    </div>
-  </div>
-
-  <button id="pdfBtn" class="btn btn-green" style="display:none;" onclick="downloadPDF()">📄 PDF डाउनलोड करें</button>
-  <button id="deleteBtn" class="btn btn-danger" style="display:none;" onclick="clearCard()">कार्ड डिलीट करें</button>
+  <button class="btn" onclick="generateCertificate()">Generate Certificate</button>
 </div>
 
+<!-- Printable Certificate Layout -->
+<div id="certificateTarget" class="certificate-wrapper">
+  <div class="certificate-border">
+    <div class="cert-title">Birth Certificate</div>
+    <div class="cert-subtitle">Official Record of Birth</div>
+
+    <div class="cert-body">
+      <div class="cert-row">
+        <span class="cert-label">Child's Name:</span>
+        <span class="cert-value" id="outChildName">-</span>
+      </div>
+      <div class="cert-row">
+        <span class="cert-label">Date of Birth:</span>
+        <span class="cert-value" id="outDob">-</span>
+      </div>
+      <div class="cert-row">
+        <span class="cert-label">Father's Name:</span>
+        <span class="cert-value" id="outFatherName">-</span>
+      </div>
+      <div class="cert-row">
+        <span class="cert-label">Mother's Name:</span>
+        <span class="cert-value" id="outMotherName">-</span>
+      </div>
+      <div class="cert-row">
+        <span class="cert-label">Place of Birth:</span>
+        <span class="cert-value" id="outPlaceName">-</span>
+      </div>
+    </div>
+
+    <div class="cert-footer">
+      <div class="signature-box">Registrar Signature</div>
+      <div class="gold-seal">OFFICIAL<br>SEAL</div>
+      <div class="signature-box">Date of Issue</div>
+    </div>
+  </div>
+</div>
+
+<button id="pdfBtn" class="btn btn-green" style="display:none; max-width:600px;" onclick="downloadPDF()">📄 Download PDF Certificate</button>
+
 <script>
-  window.onload = function() {
-    const savedData = JSON.parse(localStorage.getItem('userVisitingCard'));
-    if(savedData) {
-      renderCard(savedData.name, savedData.phone);
-    }
-  };
+  function generateCertificate() {
+    const child = document.getElementById('childName').value.trim();
+    const dob = document.getElementById('dob').value;
+    const father = document.getElementById('fatherName').value.trim();
+    const mother = document.getElementById('motherName').value.trim();
+    const place = document.getElementById('placeName').value.trim();
 
-  function generateCard() {
-    const name = document.getElementById('fullName').value.trim();
-    const phone = document.getElementById('phoneNumber').value.trim();
-
-    if(!name || !phone) {
-      alert('कृपया नाम और फ़ोन नंबर दोनों भरें!');
+    if(!child || !dob || !father || !mother || !place) {
+      alert('कृपया सभी जानकारी भरें!');
       return;
     }
 
-    const userData = { name: name, phone: phone };
-    localStorage.setItem('userVisitingCard', JSON.stringify(userData));
+    document.getElementById('outChildName').innerText = child;
+    document.getElementById('outDob').innerText = dob;
+    document.getElementById('outFatherName').innerText = father;
+    document.getElementById('outMotherName').innerText = mother;
+    document.getElementById('outPlaceName').innerText = place;
 
-    renderCard(name, phone);
-  }
-
-  function renderCard(name, phone) {
-    document.getElementById('cardName').innerText = name;
-    document.getElementById('cardPhone').innerText = phone;
-    document.getElementById('cardAvatar').innerText = name.charAt(0).toUpperCase();
-    
-    document.getElementById('visitingCard').style.display = 'block';
+    document.getElementById('certificateTarget').style.display = 'block';
     document.getElementById('pdfBtn').style.display = 'block';
-    document.getElementById('deleteBtn').style.display = 'block';
   }
 
   function downloadPDF() {
-    const element = document.getElementById('visitingCard');
-    const userName = document.getElementById('cardName').innerText;
+    const element = document.getElementById('certificateTarget');
+    const childName = document.getElementById('outChildName').innerText;
     
     const options = {
-      margin:       10,
-      filename:     `${userName}_visiting_card.pdf`,
+      margin:       5,
+      filename:     `Birth_Certificate_${childName}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'mm', format: 'a5', orientation: 'landscape' }
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
     };
 
     html2pdf().set(options).from(element).save();
-  }
-
-  function clearCard() {
-    localStorage.removeItem('userVisitingCard');
-    document.getElementById('visitingCard').style.display = 'none';
-    document.getElementById('pdfBtn').style.display = 'none';
-    document.getElementById('deleteBtn').style.display = 'none';
-    document.getElementById('fullName').value = '';
-    document.getElementById('phoneNumber').value = '';
   }
 </script>
 
