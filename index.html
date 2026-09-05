@@ -1,111 +1,230 @@
-
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Hub</title>
+    <title>Win Go - Color Prediction Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f172a; color: #fff; display: flex; justify-content: center; min-height: 100vh; }
+        
+        .app-container { width: 100%; max-width: 450px; background: #1e293b; min-height: 100vh; padding: 15px; display: flex; flex-direction: column; position: relative; }
+        
+        /* HEADER & BALANCE */
+        .wallet-card { background: linear-gradient(135deg, #3b82f6, #1d4ed8); padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .wallet-title { font-size: 13px; color: #93c5fd; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-amount { font-size: 28px; font-weight: bold; margin: 8px 0; }
+        .wallet-btns { display: flex; gap: 10px; margin-top: 15px; }
+        .w-btn { flex: 1; padding: 8px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        .recharge-btn { background: #22c55e; color: white; }
+        .withdraw-btn { background: #e11d48; color: white; }
 
-        body {
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+        /* TIMER BOX */
+        .timer-card { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .period-info div:first-child { font-size: 12px; color: #94a3b8; }
+        .period-info div:last-child { font-size: 16px; font-weight: bold; color: #f59e0b; margin-top: 4px; }
+        .countdown { font-size: 24px; font-weight: bold; color: #ef4444; background: #1e293b; padding: 5px 12px; border-radius: 8px; border: 1px solid #334155; }
 
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 40px 30px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
+        /* COLOR BETTING BUTTONS */
+        .color-btns { display: flex; gap: 10px; margin-bottom: 15px; }
+        .c-btn { flex: 1; padding: 12px 0; border: none; border-radius: 10px; font-size: 15px; font-weight: bold; color: white; cursor: pointer; transition: 0.2s; }
+        .btn-green { background: #16a34a; box-shadow: 0 4px #15803d; }
+        .btn-violet { background: #9333ea; box-shadow: 0 4px #7e22ce; }
+        .btn-red { background: #dc2626; box-shadow: 0 4px #b91c1c; }
+        .c-btn:active { transform: translateY(2px); box-shadow: none; }
 
-        .profile-img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 36px;
-            margin: 0 auto 20px;
-            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
-        }
+        /* NUMBERS GRID */
+        .number-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+        .num-btn { padding: 12px 0; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; color: white; cursor: pointer; background: #334155; }
+        .num-0 { background: linear-gradient(135deg, #dc2626 50%, #9333ea 50%); }
+        .num-5 { background: linear-gradient(135deg, #16a34a 50%, #9333ea 50%); }
+        .num-green { background: #16a34a; }
+        .num-red { background: #dc2626; }
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
+        /* HISTORY TABLE */
+        .history-title { font-size: 14px; font-weight: bold; color: #94a3b8; margin-bottom: 10px; text-transform: uppercase; }
+        .history-table { width: 100%; border-collapse: collapse; background: #0f172a; border-radius: 10px; overflow: hidden; font-size: 13px; }
+        .history-table th, .history-table td { padding: 10px; text-align: center; border-bottom: 1px solid #1e293b; }
+        .history-table th { background: #1e293b; color: #94a3b8; }
+        .dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; }
 
-        p.bio {
-            color: #94a3b8;
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
-
-        .links {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .link-btn {
-            background: rgba(255, 255, 255, 0.08);
-            color: #ffffff;
-            text-decoration: none;
-            padding: 14px 20px;
-            border-radius: 12px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-        }
-
-        .link-btn:hover {
-            background: #3b82f6;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.4);
-        }
-
-        .footer {
-            margin-top: 25px;
-            font-size: 12px;
-            color: #64748b;
-        }
+        /* MODAL POPUP */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; }
+        .modal-box { background: #1e293b; width: 85%; max-width: 350px; border-radius: 16px; padding: 20px; text-align: center; border: 1px solid #334155; }
+        .modal-title { font-size: 18px; margin-bottom: 15px; }
+        .amount-options { display: flex; gap: 8px; justify-content: center; margin: 15px 0; }
+        .amt-btn { padding: 6px 12px; background: #334155; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; }
+        .amt-btn.active { background: #3b82f6; }
+        .confirm-btn { width: 100%; padding: 10px; background: #22c55e; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="profile-img">🚀</div>
-        <h1>Welcome To My Web Hub</h1>
-        <p class="bio">Web Developer & Creative Explorer</p>
-
-        <div class="links">
-            <a href="https://github.com/rajraj0815147-hue" target="_blank" class="link-btn">My GitHub Profile</a>
-            <a href="https://rajraj0815147-hue.github.io/Trade-India/" target="_blank" class="link-btn">Trade India Project</a>
-            <a href="#" class="link-btn">Contact Me</a>
+    <div class="app-container">
+        <!-- WALLET -->
+        <div class="wallet-card">
+            <div class="wallet-title">Available Balance</div>
+            <div class="balance-amount">₹ <span id="user-balance">1000.00</span></div>
+            <div class="wallet-btns">
+                <button class="w-btn recharge-btn" onclick="alert('Recharge UPI: mohitcsc@jio')">Deposit</button>
+                <button class="w-btn withdraw-btn" onclick="alert('Minimum withdrawal ₹110')">Withdraw</button>
+            </div>
         </div>
 
-        <div class="footer">
-            © 2026 Built with GitHub Pages
+        <!-- TIMER -->
+        <div class="timer-card">
+            <div class="period-info">
+                <div>Win Go 30s</div>
+                <div id="period-id">20260905001</div>
+            </div>
+            <div>
+                <div style="font-size: 11px; color: #94a3b8; text-align: right; margin-bottom: 2px;">Left Time</div>
+                <div class="countdown" id="timer">00:30</div>
+            </div>
+        </div>
+
+        <!-- COLOR BET BUTTONS -->
+        <div class="color-btns">
+            <button class="c-btn btn-green" onclick="openBetModal('Green')">Join Green</button>
+            <button class="c-btn btn-violet" onclick="openBetModal('Violet')">Join Violet</button>
+            <button class="c-btn btn-red" onclick="openBetModal('Red')">Join Red</button>
+        </div>
+
+        <!-- NUMBERS GRID -->
+        <div class="number-grid">
+            <button class="num-btn num-0" onclick="openBetModal('0')">0</button>
+            <button class="num-btn num-green" onclick="openBetModal('1')">1</button>
+            <button class="num-btn num-red" onclick="openBetModal('2')">2</button>
+            <button class="num-btn num-green" onclick="openBetModal('3')">3</button>
+            <button class="num-btn num-red" onclick="openBetModal('4')">4</button>
+            <button class="num-btn num-5" onclick="openBetModal('5')">5</button>
+            <button class="num-btn num-red" onclick="openBetModal('6')">6</button>
+            <button class="num-btn num-green" onclick="openBetModal('7')">7</button>
+            <button class="num-btn num-red" onclick="openBetModal('8')">8</button>
+            <button class="num-btn num-green" onclick="openBetModal('9')">9</button>
+        </div>
+
+        <!-- GAME HISTORY TABLE -->
+        <div class="history-title">Game Record</div>
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    <th>Number</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody id="history-body">
+                <!-- Records injected here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- BETTING MODAL -->
+    <div class="modal" id="bet-modal">
+        <div class="modal-box">
+            <div class="modal-title">Select <span id="selected-selection" style="color:#3b82f6;"></span></div>
+            <div style="font-size: 12px; color: #94a3b8;">Contract Money</div>
+            <div class="amount-options">
+                <button class="amt-btn active" onclick="setBetAmount(10, this)">₹10</button>
+                <button class="amt-btn" onclick="setBetAmount(100, this)">₹100</button>
+                <button class="amt-btn" onclick="setBetAmount(500, this)">₹500</button>
+                <button class="amt-btn" onclick="setBetAmount(1000, this)">₹1000</button>
+            </div>
+            <button class="confirm-btn" onclick="confirmBet()">Confirm Bet</button>
+            <button style="background:none; border:none; color:#94a3b8; margin-top:10px; cursor:pointer;" onclick="closeModal()">Cancel</button>
         </div>
     </div>
 
+    <script>
+        let balance = 1000.00;
+        let timeLeft = 30;
+        let periodNumber = 20260905001;
+        let currentBet = null;
+        let selectedAmount = 10;
+
+        // Timer Logic
+        setInterval(() => {
+            timeLeft--;
+            let sec = timeLeft < 10 ? "0" + timeLeft : timeLeft;
+            document.getElementById("timer").innerText = "00:" + sec;
+
+            if (timeLeft === 0) {
+                generateResult();
+                timeLeft = 30;
+                periodNumber++;
+                document.getElementById("period-id").innerText = periodNumber;
+            }
+        }, 1000);
+
+        function openBetModal(selection) {
+            currentBet = selection;
+            document.getElementById("selected-selection").innerText = selection;
+            document.getElementById("bet-modal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("bet-modal").style.display = "none";
+        }
+
+        function setBetAmount(amt, element) {
+            selectedAmount = amt;
+            document.querySelectorAll('.amt-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function confirmBet() {
+            if (balance < selectedAmount) {
+                alert("Insufficient Balance!");
+                closeModal();
+                return;
+            }
+
+            balance -= selectedAmount;
+            document.getElementById("user-balance").innerText = balance.toFixed(2);
+            alert(`Bet Placed for ${currentBet} with ₹${selectedAmount}`);
+            closeModal();
+        }
+
+        function generateResult() {
+            let winNumber = Math.floor(Math.random() * 10);
+            let winColor = "";
+            let dotColor = "";
+
+            if (winNumber === 0) { winColor = "Red + Violet"; dotColor = "#9333ea"; }
+            else if (winNumber === 5) { winColor = "Green + Violet"; dotColor = "#9333ea"; }
+            else if ([1, 3, 7, 9].includes(winNumber)) { winColor = "Green"; dotColor = "#16a34a"; }
+            else { winColor = "Red"; dotColor = "#dc2626"; }
+
+            // Check Win
+            if (currentBet) {
+                let isWin = false;
+                if (currentBet === winColor || currentBet == winNumber || (currentBet === "Green" && winColor.includes("Green")) || (currentBet === "Red" && winColor.includes("Red"))) {
+                    isWin = true;
+                }
+
+                if (isWin) {
+                    let winAmt = selectedAmount * 1.98;
+                    balance += winAmt;
+                    alert(`🎉 You Won ₹${winAmt.toFixed(2)}!`);
+                } else {
+                    alert(`❌ You Lost ₹${selectedAmount}`);
+                }
+                document.getElementById("user-balance").innerText = balance.toFixed(2);
+                currentBet = null;
+            }
+
+            // Update History Table
+            let tbody = document.getElementById("history-body");
+            let newRow = `<tr>
+                <td>${periodNumber}</td>
+                <td style="font-weight:bold;">${winNumber}</td>
+                <td><span class="dot" style="background:${dotColor};"></span> ${winColor}</td>
+            </tr>`;
+            tbody.innerHTML = newRow + tbody.innerHTML;
+        }
+    </script>
 </body>
-</html>
+                </html>
+                
